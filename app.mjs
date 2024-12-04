@@ -4,6 +4,7 @@ import connectPgSimple from 'connect-pg-simple';
 import pg from 'pg';
 import passport from 'passport';
 import passportLocal from 'passport-local';
+import bcryptjs from 'bcryptjs';
 import cookieParser from 'cookie-parser';
 import flash from 'express-flash';
 import 'dotenv/config';
@@ -53,7 +54,8 @@ passport.use(
         });
       }
 
-      if (password !== user.password) {
+      const match = await bcryptjs.compare(password, user.password);
+      if (!match) {
         return done(null, false, {
           message: 'The username and password do not match',
         });
@@ -106,13 +108,12 @@ app.get('/sign-up', (req, res, next) => {
 
 app.post('/sign-up', async (req, res, next) => {
   try {
-    // TO DO
-    // Will hash password etc. later once general user sign up and login is working.
     const { username, password } = req.body;
+    const hash = await bcryptjs.hash(password, 10);
     const timestamp = new Date(Date.now());
     await pool.query(
       'INSERT INTO app_user (username, password, created) VALUES ($1, $2, $3) RETURNING *',
-      [username, password, timestamp],
+      [username, hash, timestamp],
     );
     res.status(201).redirect('/');
   } catch (error) {
