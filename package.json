@@ -1,0 +1,25 @@
+{
+  "name": "auth-practice",
+  "version": "1.0.0",
+  "description": "Pracitising user sessions and authentication with node, express, passport js.",
+  "main": "app.mjs",
+  "scripts": {
+    "dev": "node --watch app.mjs"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.13.0",
+    "prettier": "^3.4.2"
+  },
+  "dependencies": {
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "pg": "^8.13.1"
+  }
+}
