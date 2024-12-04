@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('partials/head.ejs') %>
+  <body>
+    <h1>Log In</h1>
+    <form action="log-in" method="post">
+      <label for="username">Username: </label>
+      <input type="text" name="username" id="username" autocomplete="username">
+      <label for="password">Password: </label>
+      <input type="password" name="password" id="password" autocomplete="current-password">
+      <button type="submit">Log in</button>
+    </form>
+  </body>
+  <a href="/sign-up">Sign up</a>
+</html>
