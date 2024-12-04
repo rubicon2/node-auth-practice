@@ -19,4 +19,11 @@
       </body>
       <a href="/sign-up">Sign up</a>
     <% } %>
+    <% if (locals.errors && errors.length > 0) { %>
+      <ul>
+        <% errors.forEach((error) => { %>
+          <li><%= error %></li>
+        <% }); %>
+      </ul>
+    <% }; %>
 </html>

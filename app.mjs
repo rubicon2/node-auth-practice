@@ -4,16 +4,23 @@ import connectPgSimple from 'connect-pg-simple';
 import pg from 'pg';
 import passport from 'passport';
 import passportLocal from 'passport-local';
+import cookieParser from 'cookie-parser';
+import flash from 'express-flash';
 import 'dotenv/config';
 
 const { Pool } = pg;
 const LocalStrategy = passportLocal.Strategy;
 
 const PORT = process.env.PORT;
+const SECRET = process.env.SECRET;
 
 const app = express();
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
+
+// Stuff for using messages once then discarding (i.e. flashing them).
+app.use(cookieParser(SECRET));
+app.use(flash());
 
 // Set up session.
 const pgStore = new connectPgSimple(session);
@@ -23,7 +30,7 @@ app.use(
     store: new pgStore({
       pool,
     }),
-    secret: process.env.SECRET,
+    secret: SECRET,
     resave: false,
     // This is false so the user session is only created if they login.
     saveUninitialized: false,
@@ -82,12 +89,15 @@ app.use(passport.session());
 app.use((req, res, next) => {
   console.log(' session:', req.session);
   console.log('    user:', req.user);
-  console.log('messages:', req.session.messages);
   next();
 });
 
 app.get('/', (req, res, next) => {
-  res.render('index', { title: 'Index', user: req.user });
+  res.render('index', {
+    title: 'Index',
+    user: req.user,
+    errors: req.flash('error'),
+  });
 });
 
 app.get('/sign-up', (req, res, next) => {
@@ -115,6 +125,7 @@ app.post(
   passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/',
+    failureFlash: true,
   }),
 );
 
