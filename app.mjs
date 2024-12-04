@@ -3,14 +3,13 @@ import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import pg from 'pg';
 import passport from 'passport';
-import passportLocal from 'passport-local';
 import bcryptjs from 'bcryptjs';
 import cookieParser from 'cookie-parser';
 import flash from 'express-flash';
 import 'dotenv/config';
+import DbStrategy from './db/dbStrategy.mjs';
 
 const { Pool } = pg;
-const LocalStrategy = passportLocal.Strategy;
 
 const PORT = process.env.PORT;
 const SECRET = process.env.SECRET;
@@ -38,39 +37,7 @@ app.use(
   }),
 );
 
-// Set up passport and strategy.
-passport.use(
-  new LocalStrategy(async (username, password, done) => {
-    try {
-      const { rows } = await pool.query(
-        'SELECT * FROM app_user WHERE username = $1',
-        [username],
-      );
-      const user = rows[0];
-
-      if (!user) {
-        return done(null, false, {
-          message: 'That username does not exist',
-        });
-      }
-
-      const match = await bcryptjs.compare(password, user.password);
-      if (!match) {
-        return done(null, false, {
-          message: 'The username and password do not match',
-        });
-      }
-
-      await pool.query('UPDATE app_user SET last_login = $1 WHERE id = $2', [
-        new Date(Date.now()),
-        user.id,
-      ]);
-      return done(null, user);
-    } catch (error) {
-      return done(error);
-    }
-  }),
-);
+passport.use(DbStrategy(pool));
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
