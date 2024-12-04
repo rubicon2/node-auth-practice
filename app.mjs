@@ -61,6 +61,10 @@ passport.use(
         });
       }
 
+      await pool.query('UPDATE app_user SET last_login = $1 WHERE id = $2', [
+        new Date(Date.now()),
+        user.id,
+      ]);
       return done(null, user);
     } catch (error) {
       return done(error);
