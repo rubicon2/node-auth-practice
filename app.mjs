@@ -2,12 +2,12 @@ import express from 'express';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import pg from 'pg';
-import passport from 'passport';
 import bcryptjs from 'bcryptjs';
 import cookieParser from 'cookie-parser';
 import flash from 'express-flash';
 import 'dotenv/config';
-import DbStrategy from './db/dbStrategy.mjs';
+
+import setupPassport from './passport.mjs';
 
 const { Pool } = pg;
 
@@ -37,26 +37,7 @@ app.use(
   }),
 );
 
-passport.use(DbStrategy(pool));
-
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const { rows } = await pool.query('SELECT * FROM app_user WHERE id = $1', [
-      id,
-    ]);
-    const user = rows[0];
-    done(null, {
-      id: user.id,
-      username: user.username,
-    });
-  } catch (error) {
-    done(error);
-  }
-});
+const passport = setupPassport(pool);
 
 app.use(passport.session());
 app.use((req, res, next) => {
